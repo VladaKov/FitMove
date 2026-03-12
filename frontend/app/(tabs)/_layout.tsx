@@ -1,35 +1,80 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: styles.tabBarActive.color,
+        tabBarInactiveTintColor: styles.tabBarInactive.color,
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarIconStyle: styles.tabBarIcon,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Главная',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="home" size={30} color={color} />
+          )
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="client"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Клиенты',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="groups" size={30} color={color} />
+          )
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Профиль',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={30} color={color} />
+          )
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#181818',
+    height: 80,
+    paddingBottom: 0,
+    borderTopWidth: 1.3,
+    borderRightWidth: 1.3,
+    borderBottomWidth: 1.3,
+    borderLeftWidth: 1.3,
+    borderRadius: 40,
+    borderColor: '#0E0E0E',
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 2,
+  },
+  tabBarActive: {
+    color: '#AACC12',
+  },
+  tabBarInactive: {
+    color: '#ffffff',
+  },
+  tabBarIcon: {
+    marginTop: 5,
+  },
+  tabBarLabel: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+});
