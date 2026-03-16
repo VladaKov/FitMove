@@ -1,20 +1,17 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet  } from 'react-native';
+import { useRouter } from 'expo-router';
 
-export default function Client() {
+export default function Home() {
+    const router = useRouter();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Страница клиентов</Text>
+    <View style={style.container}>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
   },
 });
