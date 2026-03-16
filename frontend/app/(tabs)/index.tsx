@@ -34,7 +34,7 @@ export default function Home() {
         </View>
         <Image
           style={style.imgMan}
-          source={{ uri: 'frontend/assets/img/manMotivation.png' }}
+          source={require('../../assets/img/manMotivation.png')}
         />
       </View>
     </View>
@@ -114,8 +114,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     right: 15,
     bottom: 0,
-    width: 180,
-    height: 220,
-    backgroundColor: 'rgba(255,0,0,0.3)',
+    width: 210,
+    height: 230,
   }
 });
