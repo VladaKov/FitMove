@@ -1,7 +1,7 @@
 import { View, Text, Button, StyleSheet  } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function Home() {
+export default function Client() {
     const router = useRouter();
 
   return (
