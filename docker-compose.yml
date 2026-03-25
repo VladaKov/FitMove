@@ -15,7 +15,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app
       - /app/__pycache__
     networks:
       - app_network
