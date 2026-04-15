@@ -8,20 +8,23 @@ router = APIRouter(tags=["clients"])
 def create_client(client: ClientCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO clients (name, contact, id_users) VALUES (%s, %s, %s)"
+    cursor.execute("INSERT INTO clients (id_users, name, contact) VALUES (%s, %s, %s)"
         ,(client.id_users ,client.name, client.contact))
     conn.commit()
     return {"message": "Клиент создан"}
 
-@router.get("/clients/{client_id}")
-def get_client(client_id: int):
+@router.get("/clients/user/{user_id}")
+def get_clients_by_user(user_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM clients WHERE id = %s", (client_id,))
-    client = cursor.fetchone()
-    if client is None:
-        raise HTTPException(status_code=404, detail="Клиент не найден")
-    return ClientResponse(**client)
+    cursor.execute("SELECT * FROM clients WHERE id_users = %s", (user_id,))
+    clients = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not clients:
+        return []
+    return [ClientResponse(**client) for client in clients]
 
 @router.patch("/clients/{client_id}")
 def update_client(client_id: int, client: ClientUpdate):

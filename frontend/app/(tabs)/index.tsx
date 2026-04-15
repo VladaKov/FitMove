@@ -37,6 +37,20 @@ export default function Home() {
           source={require('../../assets/img/manMotivation.png')}
         />
       </View>
+
+      <Text style={style.textTraining}>Ваши тренировки</Text>
+
+      <View style={style.containerTraining}>
+        <Text style={style.textTrainingName}>Тренировка 1</Text>
+        <Text style={style.textTrainingDate}>был(а): 23.02.26</Text>
+      </View>
+
+      <TouchableOpacity onPress={handlePress} style={style.buttonAddTraining}>
+        <View style={style.buttonContent}>
+          <Text style={style.textplus}>Добавить тренировку</Text>
+          <MaterialCommunityIcons style={style.iconplus} name="plus"/>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -78,11 +92,11 @@ const style = StyleSheet.create({
   },
   containerMotivation: {
     marginTop: 40,
-    marginLeft: 15,
     height: 200,
-    maxWidth: 400,
+    width: 400,
     backgroundColor: '#181818',
     borderRadius: 20,
+    alignSelf: 'center'
   },
   textMotivation: {
   },
@@ -116,5 +130,65 @@ const style = StyleSheet.create({
     bottom: 0,
     width: 210,
     height: 230,
-  }
+  },
+
+  textTraining: {
+    color: '#AACC12',
+    fontSize: 26,
+    fontWeight: 700,
+    marginTop: 30,
+    textAlign: 'center',
+  },
+
+  containerTraining: {
+    marginTop: 20,
+    backgroundColor: '#181818',
+    width: 400,
+    height: 80,
+    borderRadius: 20,
+    padding: 10,
+    alignSelf: 'center'
+  },
+  textTrainingName: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 700,
+    marginTop: 5,
+    marginLeft: 5,
+  },
+  textTrainingDate: {
+    color: '#646464',
+    fontSize: 14,
+    marginTop: 3,
+    marginLeft: 5,
+  },
+
+    buttonAddTraining:{
+    display: 'flex',
+    backgroundColor: '#AACC12',
+    width: 320,
+    height: 50,
+    padding: 10,
+    marginTop: 40,
+    marginBottom: 20,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignSelf: 'center'
+  },
+  buttonContent:{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 15,
+  },
+  textplus:{
+    color: '#0e0e0e',
+    fontSize: 20,
+    fontWeight: '500',
+  },
+  iconplus:{
+    color: '#0e0e0e',
+    fontSize: 25,
+  },
 });
