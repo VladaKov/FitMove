@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { isAuthenticated } from '../services/auth';
+import { isAuthenticated } from '../../services/auth';
 
 export default function StartScreen() {
     const router = useRouter();

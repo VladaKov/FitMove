@@ -18,6 +18,10 @@ export interface UserResponse {
     login: string;
 }
 
+export interface UserUpdateName {
+    name: string;
+}
+
 // Клиент
 export interface ClientCreate {
     id_users: number;

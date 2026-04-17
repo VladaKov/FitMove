@@ -38,7 +38,7 @@ export default function Profile() {
                 style: 'destructive',
                 onPress: async () => {
                     await logoutUser();
-                    router.replace('/');
+                    router.replace('/start');
                 }
             }
         ]);
@@ -53,7 +53,7 @@ export default function Profile() {
         if (success) {
             setUserName(newName);
             setModalVisible(false);
-            console.log('Успех, Имя изменено');
+            console.log('Имя изменено');
         } else {
             console.log('Ошибка, Не удалось изменить имя');
         }
@@ -113,13 +113,7 @@ export default function Profile() {
 
                         <View style={style.containerModal}>
                             <Text style={style.textName}>Введите новое имя</Text>
-                            <TextInput
-                                style={style.input}
-                                placeholder="Имя"
-                                placeholderTextColor="#646464"
-                                value={newName}
-                                onChangeText={setNewName}
-                            />
+                            <TextInput style={style.input} placeholder="Имя" placeholderTextColor="#646464" value={newName} onChangeText={setNewName}/>
 
                             <TouchableOpacity onPress={handleUpdateName} style={style.saveButton}>
                                 <Text style={style.saveText}>Сохранить</Text>

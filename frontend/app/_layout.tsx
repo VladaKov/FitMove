@@ -33,7 +33,7 @@ export default function RootLayout() {
       if (isLoggedIn) {
         router.replace('/(tabs)');
       } else {
-        router.replace('/');
+        router.replace('/start');
       }
     }
   }, [isLoading, isLoggedIn]);
@@ -49,7 +49,7 @@ export default function RootLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="start" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="modal/info" options={{ presentation: 'modal' }} />

@@ -18,6 +18,8 @@ class UserResponse(BaseModel):
     name: str
     login: str
 
+class UserUpdateName(BaseModel):
+    name: str
 
 #* Клиент
 class ClientCreate(BaseModel):

@@ -62,7 +62,7 @@ export const updateUserName = async (name: string): Promise<boolean> => {
         if (!userId) {
             throw new Error('Пользователь не авторизован');
         }
-        await api.put(`/users/${userId}`, { name });
+        await api.put(`/users/name/${userId}`, { name });
         await storage.setItem(USER_NAME_KEY, name);
         return true;
     } catch (error: any) {

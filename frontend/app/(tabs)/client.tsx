@@ -83,11 +83,7 @@ export default function Client() {
                 animationType="fade"
                 transparent={true}
                 visible={modalVisible}
-                    onRequestClose={() => {
-                    setModalVisible(false);
-                    setName('');
-                    setContact('');
-                }}
+                onRequestClose={() => {setModalVisible(false); setName('');setContact('');}}
             >
                 <View style={style.modalOverlay}>
                     <View style={style.modalContent}>

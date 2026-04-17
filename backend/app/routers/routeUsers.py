@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, APIRouter
-from schemas import UserCreate, UserUpdate, UserResponse
+from schemas import UserCreate, UserUpdate, UserResponse, UserUpdateName
 from databaseMain import get_db_connection
 
 router = APIRouter(tags=["users"])
@@ -31,6 +31,14 @@ def update_user(user_id: int, user: UserUpdate):
         ,(user.name, user.login, user.password, user_id))
     conn.commit()
     return {"message": "Данные пользователя обновлены"}
+
+@router.put("/users/name/{user_id}")
+def update_user_name(user_id: int, user: UserUpdateName):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET name = %s WHERE id = %s", (user.name, user_id,))
+    conn.commit()
+    return {"message": "Имя пользователя обновлено"}
 
 @router.delete("/users/{user_id}")
 def delete_user(user_id: int):
