@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons  } from '@expo/vector-icons';
+import { getUserName } from '../../services/auth';
 
 export default function Home() {
     const router = useRouter();
+    const userName = getUserName();
 
     const handlePress = () => {
       console.log('Кнопка с иконкой нажата (заглушка)');
@@ -15,7 +17,7 @@ export default function Home() {
       <View style={style.containerInfo}>
 
         <View style={style.containerInfoText}>
-          <Text style={style.textGreetings}>Привет, Владислава</Text>
+          <Text style={style.textGreetings}>Привет, {userName}</Text>
           <Text style={style.textGreetingsDate}>10 марта</Text>
         </View>
 

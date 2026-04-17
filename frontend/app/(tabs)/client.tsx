@@ -1,19 +1,58 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 
-import { getClients } from '../../services/clientsService';
+import { getClients, createClient } from '../../services/clientsService';
 import { ClientResponse } from '../../services/types';
+
+import { getUserId } from '../../services/auth';
 
 export default function Client() {
     const router = useRouter();
     const [modalVisible, setModalVisible] = useState(false);
     const [clients, setClients] = useState<ClientResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [name, setName] = useState('');
+    const [contact, setContact] = useState('');
 
     useEffect(() => {
-        getClients(35).then(setClients);
+        loadClients();
     }, []);
+
+    const loadClients = async () => {
+        const userId = await getUserId();
+        const data = await getClients(Number(userId));
+        setClients(data);
+        setLoading(false);
+    };
+
+    const addClient = async () => {
+        if (!name || !contact) {
+            Alert.alert('Ошибка', 'Заполните все поля');
+            return;
+        }
+
+        const userId = await getUserId();
+        await createClient({
+            id_users: Number(userId),
+            name: name,
+            contact: contact
+        });
+
+        setName('');
+        setContact('');
+        setModalVisible(false);
+        loadClients();
+    };
+
+    if (loading) {
+        return (
+            <View style={style.container}>
+                <ActivityIndicator size="large" color="#AACC12" />
+            </View>
+        );
+    }
 
     return (
         <View style={style.container}>
@@ -24,23 +63,31 @@ export default function Client() {
                 </View>
             </TouchableOpacity>
 
-            <FlatList
-                data={clients}
-                keyExtractor={(item) => item.id.toString()}
-                style={{ width: '100%' }}
-                renderItem={({ item }) => (
-                    <View style={style.containerClient}>
-                        <Text style={style.textNameClient}>{item.name}</Text>
-                        <Text style={style.textDateClient}>был(а): 23.02.26</Text>
-                    </View>
-                )}
-            />
+            {clients.length === 0 ? (
+                <Text style={style.textNoClients}>Клиенты не найдены</Text>
+            ) : (
+                <FlatList
+                    data={clients}
+                    keyExtractor={(item) => item.id.toString()}
+                    style={{ width: '100%' }}
+                    renderItem={({ item }) => (
+                        <View style={style.containerClient}>
+                            <Text style={style.textNameClient}>{item.name}</Text>
+                            <Text style={style.textDateClient}>был(а): 23.02.26</Text>
+                        </View>
+                    )}
+                />
+            )}
 
             <Modal
                 animationType="fade"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
+                    onRequestClose={() => {
+                    setModalVisible(false);
+                    setName('');
+                    setContact('');
+                }}
             >
                 <View style={style.modalOverlay}>
                     <View style={style.modalContent}>
@@ -49,12 +96,12 @@ export default function Client() {
                         </TouchableOpacity>
 
                         <View style={style.containerModalClient}>
-                            <Text style={style.textNameClient}>Введите имя клиента</Text>
-                            <TextInput style={style.inputClient} placeholder="Фио" placeholderTextColor="#646464" />
-                            <Text style={style.textNameClient}>Введите контактные данные клиента</Text>
-                            <TextInput style={style.inputClient} placeholder="Контакт" placeholderTextColor="#646464" />
+                            <Text style={style.textNewClient}>Введите имя клиента</Text>
+                            <TextInput style={style.inputClient} placeholder="Фио" placeholderTextColor="#646464" value={name} onChangeText={setName}/>
+                            <Text style={style.textNewClient}>Введите контактные данные клиента</Text>
+                            <TextInput style={style.inputClient} placeholder="Контакт" placeholderTextColor="#646464" value={contact} onChangeText={setContact}/>
 
-                            <TouchableOpacity onPress={() => setModalVisible(false)} style={style.saveButton}>
+                            <TouchableOpacity onPress={addClient} style={style.saveButton}>
                                 <View style={style.buttonContent}>
                                     <Text style={style.textplus}>Сохранить</Text>
                                 </View>
@@ -113,7 +160,7 @@ const style = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 25,
         fontWeight: '600',
-        marginBottom: 5,
+        marginBottom: 10,
     },
     textDateClient: {
         color: '#646464',
@@ -146,6 +193,12 @@ const style = StyleSheet.create({
         padding: 5,
         zIndex: 1,
     },
+    textNewClient: {
+        color: '#FFFFFF',
+        fontSize: 22,
+        fontWeight: '600',
+        marginBottom: 10,
+    },
     saveButton: {
         display: 'flex',
         backgroundColor: '#AACC12',
@@ -154,7 +207,7 @@ const style = StyleSheet.create({
         padding: 10,
         borderRadius: 30,
         alignSelf: 'center',
-        marginTop: 40,
+        marginTop: 80,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -168,4 +221,10 @@ const style = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 15,
     },
+    textNoClients: {
+        color: '#d1d1d1',
+        fontSize: 20,
+        fontWeight: '500',
+        marginTop: 20,
+    }
 });
