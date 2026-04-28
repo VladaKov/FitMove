@@ -8,20 +8,23 @@ router = APIRouter(tags=["exercise"])
 def create_exercise(exercise: ExerciseCreate):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO exercises (id_category, name_exercises, repetitions, comment) VALUES (%s, %s, %s, %s)"
-        , (exercise.id_category, exercise.name_exercises, exercise.repetitions, exercise.comment))
+    cur.execute("INSERT INTO exercises (id_category, name_exercises, repetitions, comment, id_block_exercise) VALUES (%s, %s, %s, %s, %s)"
+        , (exercise.id_category, exercise.name_exercises, exercise.repetitions, exercise.comment, exercise.id_block_exercise))
     conn.commit()
     return {"message": "Упражнение создано"}
 
-@router.get("/exercise")
-def get_exercises():
+
+@router.get("/exercise/{id_block_exercise}")
+def get_exercises(id_block_exercise: int):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM exercises")
-    exercises = cur.fetchall()
-    if exercises is None:
-        raise HTTPException(status_code=404, detail="Упражнения не найдены")
-    return ExerciseResponse(**exercises)
+    cur.execute("SELECT * FROM exercises WHERE id_block_exercise = %s", (id_block_exercise))
+    exercise = cur.fetchall()
+    conn.commit()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Упражнение не найдено")
+    return [ExerciseResponse(**exercises) for exercises in exercise]
+
 
 @router.put("/exercise/{id_exercise}")
 def update_exercise(id_exercise: int, exercise: ExerciseUpdate):
@@ -31,6 +34,7 @@ def update_exercise(id_exercise: int, exercise: ExerciseUpdate):
         , (exercise.id_category, exercise.name_exercises, exercise.repetitions, exercise.comment, id_exercise))
     conn.commit()
     return {"message": "Упражнение обновлено"}
+
 
 @router.delete("/exercise/{id_exercise}")
 def delete_exercise(id_exercise: int):

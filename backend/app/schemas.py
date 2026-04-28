@@ -54,6 +54,11 @@ class WorkoutResponse(BaseModel):
     date: date
     id_client: int
 
+class WorkoutResponseName(BaseModel):
+    name_workout: str
+    date: date
+    id_client: int
+
 
 #* категории
 class CategoryResponse(BaseModel):
@@ -67,11 +72,13 @@ class ExerciseCreate(BaseModel):
     name_exercises: str
     repetitions: int
     comment: Optional[str] = None
+    id_block_exercise: Optional[int] = None
 
 class ExerciseUpdate(BaseModel):
     name_exercises: Optional[str] = None
     repetitions: Optional[int] = None
     comment: Optional[str] = None
+    id_category: Optional[int] = None
 
 class ExerciseResponse(BaseModel):
     id: int
@@ -79,6 +86,7 @@ class ExerciseResponse(BaseModel):
     repetitions: int
     comment: Optional[str] = None
     id_category: Optional[int] = None
+    id_block_exercise: Optional[int] = None
 
 
 #* Блоки

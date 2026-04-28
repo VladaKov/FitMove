@@ -13,6 +13,7 @@ def create_block_exercise(block_exercise: BlockExerciseCreate):
     conn.commit()
     return {"message": "блок создан"}
 
+
 @router.put("/block_exercises/{id_block_exercise}")
 def update_block_exercise(id_block_exercise: int, block_exercise: BlockExerciseUpdate):
     conn = get_db_connection()
@@ -20,6 +21,7 @@ def update_block_exercise(id_block_exercise: int, block_exercise: BlockExerciseU
     cur.execute("UPDATE block_exercises SET id_exercises = %s WHERE id = %s", (block_exercise.id_exercises, id_block_exercise))
     conn.commit()
     return {"message": "блок обновлен"}
+
 
 @router.delete("/block_exercises/{id_block_exercise}")
 def delete_block_exercise(id_block_exercise: int):
@@ -29,12 +31,13 @@ def delete_block_exercise(id_block_exercise: int):
     conn.commit()
     return {"message": "блок удален"}
 
-@router.get("/block_exercises/{id_block_exercise}")
+
+@router.get("/block_exercises/{id_workout}")
 def get_block_exercise(workout_id_block_exercise: int):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM block_exercises WHERE id_workout = %s", (workout_id_block_exercise,))
-    block_exercise = cur.fetchone()
-    if block_exercise is None:
+    block_exercises = cur.fetchone()
+    if block_exercises is None:
         raise HTTPException(status_code=404, detail="блок не найден")
-    return BlockExerciseResponse(**block_exercise)
+    return [BlockExerciseResponse(**block_exercise) for block_exercise in block_exercises]

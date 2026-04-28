@@ -6,7 +6,7 @@ export const createClient = async (client: ClientCreate) => {
     return response.data;
 }
 export const updateClient = async (id: number, client: ClientUpdate) => {
-    const response = await api.put(`/clients/${id}`, client);
+    const response = await api.patch(`/clients/${id}`, client);
     return response.data;
 }
 

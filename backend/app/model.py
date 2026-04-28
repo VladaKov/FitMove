@@ -45,20 +45,20 @@ def init_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS exercises (
-            id BIGINT PRIMARY KEY DEFAULT nextval('global_id_seq'),
-            id_category BIGINT REFERENCES category(id),
-            name_exercises VARCHAR(50) NOT NULL,
-            repetitions INT NOT NULL,
-            comment VARCHAR(255) NOT NULL
-        );
-    """)
-    cur.execute("""
         CREATE TABLE IF NOT EXISTS blockExercises (
             id BIGINT PRIMARY KEY DEFAULT nextval('global_id_seq'),
             id_workout BIGINT REFERENCES workout(id),
-            id_exercises BIGINT REFERENCES exercises(id),
             number_block INT NOT NULL
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS exercises (
+            id BIGINT PRIMARY KEY DEFAULT nextval('global_id_seq'),
+            id_category BIGINT REFERENCES category(id),
+            id_execute BIGINT REFERENCES blockExercises(id),
+            name_exercises VARCHAR(50) NOT NULL,
+            repetitions INT NOT NULL,
+            comment VARCHAR(255) NOT NULL
         );
     """)
     # Заполнение таблицы категорий

@@ -14,4 +14,4 @@ async def get_categories():
     conn.close()
     if not categories:
         raise HTTPException(status_code=404, detail="Нету категорий упражнений")
-    return CategoryResponse(categories=categories)
+    return [CategoryResponse(**categorie) for categorie in categories]

@@ -1,26 +1,32 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, FlatList, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState } from 'react';
 
 import { getClients, createClient } from '../../services/clientsService';
 import { ClientResponse } from '../../services/types';
 
 import { getUserId } from '../../services/auth';
+import { useAppContext } from '../../context/AppContext';
 
 export default function Client() {
     const router = useRouter();
+    const { refreshTrigger, triggerRefresh } = useAppContext();
     const [modalVisible, setModalVisible] = useState(false);
     const [clients, setClients] = useState<ClientResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
     const [contact, setContact] = useState('');
 
-    useEffect(() => {
-        loadClients();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            loadClients();
+        }, [refreshTrigger])
+    );
 
     const loadClients = async () => {
+        setLoading(true);
         const userId = await getUserId();
         const data = await getClients(Number(userId));
         setClients(data);
@@ -43,7 +49,18 @@ export default function Client() {
         setName('');
         setContact('');
         setModalVisible(false);
-        loadClients();
+        triggerRefresh();
+    };
+
+    const handleClientPress = (client: ClientResponse) => {
+        router.push({
+            pathname: '/(page)/clientInfo',
+            params: {
+                id: client.id,
+                name: client.name,
+                contact: client.contact
+            }
+        });
     };
 
     if (loading) {
@@ -69,12 +86,16 @@ export default function Client() {
                 <FlatList
                     data={clients}
                     keyExtractor={(item) => item.id.toString()}
-                    style={{ width: '100%' }}
+                    style={style.flatList}
+                    contentContainerStyle={style.flatListContent}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
-                        <View style={style.containerClient}>
-                            <Text style={style.textNameClient}>{item.name}</Text>
-                            <Text style={style.textDateClient}>был(а): 23.02.26</Text>
-                        </View>
+                        <TouchableOpacity onPress={() => handleClientPress(item)}>
+                            <View style={style.containerClient}>
+                                <Text style={style.textNameClient}>{item.name}</Text>
+                                <Text style={style.textDateClient}>был(а): 23.02.26</Text>
+                            </View>
+                        </TouchableOpacity>
                     )}
                 />
             )}
@@ -143,6 +164,14 @@ const style = StyleSheet.create({
     iconplus: {
         color: '#0e0e0e',
         fontSize: 25,
+    },
+    flatList: {
+        width: '100%',
+        flex: 1,
+    },
+    flatListContent: {
+        paddingBottom: Platform.OS === 'ios' ? 100 : 200,
+        paddingTop: 5,
     },
     containerClient: {
         backgroundColor: '#181818',

@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { isAuthenticated } from '../services/auth';
 import { router } from 'expo-router';
+import { AppProvider } from '../context/AppContext';
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -13,11 +14,6 @@ export default function RootLayout() {
       try {
         const authenticated = await isAuthenticated();
         setIsLoggedIn(authenticated);
-        if (authenticated) {
-          console.log('Пользователь уже авторизован');
-        } else {
-          console.log('Пользователь не авторизован');
-        }
       } catch (error) {
         console.log('Ошибка проверки авторизации:', error);
       } finally {
@@ -41,8 +37,10 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <View style={styles.splashContainer}>
-        <Text style={{ color: '#000000', fontSize: 40, fontWeight: '700'}}>FitMove</Text>
-        <ActivityIndicator size="large" color="#000000"/>
+        <Text style={{ color: '#000000', fontSize: 40, fontWeight: '700' }}>
+          FitMove
+        </Text>
+        <ActivityIndicator size="large" color="#000000" />
       </View>
     );
   }
@@ -52,8 +50,17 @@ export default function RootLayout() {
       <Stack.Screen name="start" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(page)" options={{ headerShown: false }} />
       <Stack.Screen name="modal/info" options={{ presentation: 'modal' }} />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AppProvider>
+      <RootLayoutContent />
+    </AppProvider>
   );
 }
 

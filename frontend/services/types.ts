@@ -1,5 +1,5 @@
 
-// Пользователь
+//* Пользователь
 export interface UserCreate {
     name: string;
     login: string;
@@ -22,7 +22,7 @@ export interface UserUpdateName {
     name: string;
 }
 
-// Клиент
+//* Клиент
 export interface ClientCreate {
     id_users: number;
     name: string;
@@ -41,7 +41,7 @@ export interface ClientResponse {
     id_users: number;
 }
 
-// Тренировка
+//* Тренировка
 export interface WorkoutCreate {
     id_client: number;
     name_workout: string;
@@ -60,18 +60,19 @@ export interface WorkoutResponse {
     id_client: number;
 }
 
-// Категория
+//* Категория
 export interface CategoryResponse {
     id: number;
     name_category: string;
 }
 
-// Упражнение
+//* Упражнение
 export interface ExerciseCreate {
     id_category?: number | null;
     name_exercises: string;
     repetitions: number;
     comment?: string | null;
+    id_block_exercises?: number | null;
 }
 
 export interface ExerciseUpdate {
@@ -86,23 +87,22 @@ export interface ExerciseResponse {
     repetitions: number;
     comment: string | null;
     id_category: number | null;
+    id_block_exercises: number | null;
 }
 
-// Блок упражнений
+//* Блок упражнений
 export interface BlockExerciseCreate {
     id_workout: number;
-    id_exercises: number;
     number_block: number;
 }
 
 export interface BlockExerciseUpdate {
     number_block?: number;
-    id_exercises?: number;
+    id_workout?: number;
 }
 
 export interface BlockExerciseResponse {
     id: number;
     id_workout: number;
-    id_exercises: number;
     number_block: number;
 }

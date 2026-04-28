@@ -1,23 +1,23 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { getUserName, logoutUser, getUserId, updateUserName } from '../../services/auth';
 import { getClients } from '../../services/clientsService';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
+import { useAppContext } from '../../context/AppContext';
 
 export default function Profile() {
     const router = useRouter();
+    const { refreshTrigger, triggerRefresh } = useAppContext();
     const [userName, setUserName] = useState('');
     const [clientsCount, setClientsCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [newName, setNewName] = useState('');
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
     const loadData = async () => {
+        setLoading(true);
         const name = await getUserName();
         setUserName(name || 'Пользователь');
         setNewName(name || '');
@@ -29,6 +29,12 @@ export default function Profile() {
         }
         setLoading(false);
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            loadData();
+        }, [refreshTrigger])
+    );
 
     const handleLogout = async () => {
         Alert.alert('Выход', 'Вы уверены, что хотите выйти?', [
@@ -53,9 +59,10 @@ export default function Profile() {
         if (success) {
             setUserName(newName);
             setModalVisible(false);
-            console.log('Имя изменено');
+            triggerRefresh();
+            Alert.alert('Имя изменено');
         } else {
-            console.log('Ошибка, Не удалось изменить имя');
+            Alert.alert('Ошибка', 'Не удалось изменить имя');
         }
     };
 

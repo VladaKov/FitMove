@@ -3,14 +3,41 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons  } from '@expo/vector-icons';
 import { getUserName } from '../../services/auth';
 
+import { useFocusEffect } from 'expo-router';
+import React, { useState, useCallback } from 'react';
+import { ActivityIndicator } from 'react-native';
+import { useAppContext } from '../../context/AppContext';
+
 export default function Home() {
     const router = useRouter();
-    const userName = getUserName();
+    const { refreshTrigger } = useAppContext();
+    const [userName, setUserName] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    const handlePress = () => {
-      console.log('Кнопка с иконкой нажата (заглушка)');
+    const loadData = async () => {
+        setLoading(true);
+        const name = await getUserName();
+        setUserName(name || 'Пользователь');
+        setLoading(false);
     };
 
+    useFocusEffect(
+        useCallback(() => {
+            loadData();
+        }, [refreshTrigger])
+    );
+
+    const handlePress = () => {
+      console.log('Кнопка нажата');
+    };
+
+    if (loading) {
+        return (
+            <View style={style.container}>
+                <ActivityIndicator size="large" color="#AACC12" />
+            </View>
+        );
+    }
   return (
     <View style={style.container}>
 
@@ -22,7 +49,7 @@ export default function Home() {
         </View>
 
         <TouchableOpacity onPress={handlePress} style={style.iconButton}>
-          <MaterialCommunityIcons style={style.iconbrightness_6} name="brightness-6"/>
+          <MaterialCommunityIcons style={style.iconbrightness_4} name="brightness-4"/>
         </TouchableOpacity>
 
       </View>
@@ -86,7 +113,7 @@ const style = StyleSheet.create({
     borderRadius: 30,
     marginRight: 25,
   },
-  iconbrightness_6: {
+  iconbrightness_4: {
     color: '#646464',
     fontSize: 36,
     marginTop: 6,
