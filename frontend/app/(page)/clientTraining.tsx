@@ -24,11 +24,9 @@ export default function ClientTraining() {
         try {
             const blocksResponse = await api.get(`/block_exercises/${workoutId}`);
             const blocksData = blocksResponse.data;
-            
             const blocksWithExercises = await Promise.all(
                 blocksData.map(async (block: any) => {
                     const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
-                    
                     const exercisesWithCategory = await Promise.all(
                         exercisesResponse.data.map(async (exercise: any) => {
                             let categoryName = 'Без категории';
@@ -46,14 +44,12 @@ export default function ClientTraining() {
                             };
                         })
                     );
-                    
                     return {
                         ...block,
                         exercises: exercisesWithCategory
                     };
                 })
             );
-            
             setBlocks(blocksWithExercises);
             setLoading(false);
         } catch (error) {
@@ -93,7 +89,6 @@ export default function ClientTraining() {
                 blocks.map((block: any, blockIndex: number) => (
                     <View key={block.id} style={styles.blockWrapper}>
                         <Text style={styles.blockTitle}>Блок {block.number_block || blockIndex + 1}</Text>
-                        
                         {block.exercises.map((exercise: any, exIndex: number) => (
                             <View key={exercise.id}>
                                 <View style={styles.exerciseCard}>

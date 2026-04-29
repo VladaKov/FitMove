@@ -9,11 +9,10 @@ def create_exercise(exercise: ExerciseCreate):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO exercises (id_category, name_exercises, repetitions, comment, id_block) 
+        INSERT INTO exercises (id_category, name_exercises, repetitions, comment, id_block)
         VALUES (%s, %s, %s, %s, %s) RETURNING id
     """, (exercise.id_category, exercise.name_exercises, exercise.repetitions, exercise.comment, exercise.id_block))
-    
-    # Исправлено: получаем id как словарь
+
     result = cur.fetchone()
     exercise_id = result['id'] if isinstance(result, dict) else result[0]
     conn.commit()

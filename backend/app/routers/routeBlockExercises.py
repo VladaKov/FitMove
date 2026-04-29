@@ -10,8 +10,6 @@ def create_block_exercise(block_exercise: BlockExerciseCreate):
     cur = conn.cursor()
     cur.execute("INSERT INTO blockExercises (id_workout, number_block) VALUES (%s, %s) RETURNING id",
         (block_exercise.id_workout, block_exercise.number_block))
-    
-    # Исправлено: получаем id как словарь
     result = cur.fetchone()
     block_id = result['id'] if isinstance(result, dict) else result[0]
     conn.commit()

@@ -28,7 +28,6 @@ export default function Profile() {
         if (userId) {
             const clients = await getClients(userId);
             setClientsCount(clients.length);
-            
             const workouts = await getWorkoutUser(userId);
             setWorkoutsCount(workouts.length);
         }
@@ -125,11 +124,11 @@ export default function Profile() {
 
                         <View style={style.containerModal}>
                             <Text style={style.textName}>Введите новое имя</Text>
-                            <TextInput 
-                                style={style.input} 
-                                placeholder="Имя" 
-                                placeholderTextColor="#646464" 
-                                value={newName} 
+                            <TextInput
+                                style={style.input}
+                                placeholder="Имя"
+                                placeholderTextColor="#646464"
+                                value={newName}
                                 onChangeText={setNewName}
                             />
 

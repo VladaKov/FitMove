@@ -104,18 +104,14 @@ export default function ClientInfo() {
                         try {
                             const blocksResponse = await api.get(`/block_exercises/${workoutId}`);
                             const blocks = blocksResponse.data;
-                            
                             for (const block of blocks) {
                                 const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
                                 const exercises = exercisesResponse.data;
-                                
                                 for (const exercise of exercises) {
                                     await api.delete(`/exercise/${exercise.id}`);
                                 }
-                                
                                 await api.delete(`/block_exercises/${block.id}`);
                             }
-                            
                             await api.delete(`/workout/${workoutId}`);
                             triggerRefresh();
                         } catch (error) {
@@ -222,8 +218,8 @@ export default function ClientInfo() {
                 </View>
             </TouchableOpacity>
 
-            <ScrollView 
-                style={styles.scrollView} 
+            <ScrollView
+                style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
@@ -244,8 +240,8 @@ export default function ClientInfo() {
                                     <Text style={styles.textTrainingName}>{workout.name_workout}</Text>
                                     <Text style={styles.textTrainingDate}>Дата: {formatDate(workout.date)}</Text>
                                 </View>
-                                <TouchableOpacity 
-                                    style={styles.deleteButton} 
+                                <TouchableOpacity
+                                    style={styles.deleteButton}
                                     onPress={() => handleDeleteWorkout(workout.id, workout.name_workout)}
                                 >
                                     <MaterialCommunityIcons name="delete" size={24} color="#ff4444" />

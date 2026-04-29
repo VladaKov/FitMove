@@ -30,15 +30,14 @@ export default function Client() {
         setLoading(true);
         const userId = await getUserId();
         const data = await getClients(Number(userId));
-        
-        // Для каждого клиента получаем последнюю дату тренировки
+
         const clientsWithLastDate = await Promise.all(
             data.map(async (client) => {
                 try {
                     const response = await api.get(`/workout/client/${client.id}`);
                     const workouts = response.data;
                     if (workouts.length > 0) {
-                        const lastWorkout = workouts.sort((a: any, b: any) => 
+                        const lastWorkout = workouts.sort((a: any, b: any) =>
                             new Date(b.date).getTime() - new Date(a.date).getTime()
                         )[0];
                         return {
@@ -53,7 +52,7 @@ export default function Client() {
                 }
             })
         );
-        
+
         setClients(clientsWithLastDate);
         setLoading(false);
     };
@@ -88,34 +87,21 @@ export default function Client() {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            // Сначала удаляем все тренировки клиента со всеми блоками и упражнениями
                             const workoutsResponse = await api.get(`/workout/client/${client.id}`);
                             const workouts = workoutsResponse.data;
-                            
                             for (const workout of workouts) {
-                                // Получаем блоки тренировки
                                 const blocksResponse = await api.get(`/block_exercises/${workout.id}`);
                                 const blocks = blocksResponse.data;
-                                
                                 for (const block of blocks) {
-                                    // Получаем упражнения блока
                                     const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
                                     const exercises = exercisesResponse.data;
-                                    
-                                    // Удаляем каждое упражнение
                                     for (const exercise of exercises) {
                                         await api.delete(`/exercise/${exercise.id}`);
                                     }
-                                    
-                                    // Удаляем блок
                                     await api.delete(`/block_exercises/${block.id}`);
                                 }
-                                
-                                // Удаляем тренировку
                                 await api.delete(`/workout/${workout.id}`);
                             }
-                            
-                            // Удаляем клиента
                             await deleteClient(client.id);
                             triggerRefresh();
                         } catch (error) {
@@ -176,7 +162,7 @@ export default function Client() {
                             <View style={style.containerClient}>
                                 <View style={style.clientHeader}>
                                     <Text style={style.textNameClient}>{item.name}</Text>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         style={style.deleteClientButton}
                                         onPress={() => handleDeleteClient(item)}
                                     >

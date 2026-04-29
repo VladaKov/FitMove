@@ -59,19 +59,19 @@ export default function UserCreateTrainind() {
             repetitions: '',
             comment: ''
         };
-        setBlocks(blocks.map(block => 
-            block.id === blockId 
+        setBlocks(blocks.map(block =>
+            block.id === blockId
                 ? { ...block, exercises: [...block.exercises, newExercise] }
                 : block
         ));
     };
 
     const updateExercise = (blockId: string, exerciseId: string, field: string, value: any) => {
-        setBlocks(prevBlocks => prevBlocks.map(block => 
+        setBlocks(prevBlocks => prevBlocks.map(block =>
             block.id === blockId
                 ? {
                     ...block,
-                    exercises: block.exercises.map((ex: any) => 
+                    exercises: block.exercises.map((ex: any) =>
                         ex.id === exerciseId ? { ...ex, [field]: value } : ex
                     )
                 }
@@ -80,7 +80,7 @@ export default function UserCreateTrainind() {
     };
 
     const deleteExercise = (blockId: string, exerciseId: string) => {
-        setBlocks(blocks.map(block => 
+        setBlocks(blocks.map(block =>
             block.id === blockId
                 ? { ...block, exercises: block.exercises.filter((ex: any) => ex.id !== exerciseId) }
                 : block
@@ -109,7 +109,6 @@ export default function UserCreateTrainind() {
 
         setLoading(true);
         const userId = await getUserId();
-        
         try {
             const workout = await createWorkout({
                 id_users: userId || undefined,
@@ -123,7 +122,7 @@ export default function UserCreateTrainind() {
                     id_workout: workout.id,
                     number_block: i + 1
                 });
-                
+
                 for (const exercise of block.exercises) {
                     if (exercise.name && exercise.repetitions) {
                         await createExercise({
@@ -168,7 +167,7 @@ export default function UserCreateTrainind() {
                             <Text style={styles.deleteBlockText}>Удалить блок</Text>
                         </TouchableOpacity>
                     </View>
-                    
+
                     {block.exercises.map((ex: any) => (
                         <View key={ex.id} style={styles.exerciseCard}>
                             <TextInput
@@ -189,7 +188,7 @@ export default function UserCreateTrainind() {
                             />
 
                             <View style={styles.exerciseRow}>
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     style={styles.categoryWrapper}
                                     onPress={() => openCategoryModal(block.id, ex.id)}
                                 >
@@ -203,7 +202,7 @@ export default function UserCreateTrainind() {
                                     />
                                     <MaterialCommunityIcons name="chevron-down" size={20} color="#646464" style={styles.dropdownIcon} />
                                 </TouchableOpacity>
-                                
+
                                 <TextInput
                                     style={styles.exerciseRepetition}
                                     placeholder="Повторения"
@@ -212,14 +211,14 @@ export default function UserCreateTrainind() {
                                     value={ex.repetitions}
                                     onChangeText={(text) => updateExercise(block.id, ex.id, 'repetitions', text)}
                                 />
-                                
+
                                 <TouchableOpacity onPress={() => deleteExercise(block.id, ex.id)}>
                                     <MaterialCommunityIcons name="delete" size={24} color="#ff4444" />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     ))}
-                    
+
                     <TouchableOpacity style={styles.addExerciseButton} onPress={() => addExercise(block.id)}>
                         <MaterialCommunityIcons name="plus" size={20} color="#AACC12" />
                         <Text style={styles.addExerciseText}>Добавить упражнение</Text>
@@ -245,7 +244,7 @@ export default function UserCreateTrainind() {
                     setSelectedExercise(null);
                 }}
             >
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.modalOverlay}
                     activeOpacity={1}
                     onPress={() => {
@@ -256,7 +255,7 @@ export default function UserCreateTrainind() {
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Выберите категорию</Text>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 onPress={() => {
                                     setModalVisible(false);
                                     setSelectedExercise(null);

@@ -33,16 +33,16 @@ export default function Home() {
         setLoading(true);
         const name = await getUserName();
         setUserName(name || 'Пользователь');
-        
+
         setCurrentDate(getFormattedDate());
-        
+
         const userId = await getUserId();
         if (userId) {
             try {
                 const response = await api.get(`/workout/user/${userId}`);
                 const workouts = response.data;
                 const workoutsWithoutClient = workouts.filter((workout: any) => workout.id_client === null);
-                const sortedWorkouts = workoutsWithoutClient.sort((a: any, b: any) => 
+                const sortedWorkouts = workoutsWithoutClient.sort((a: any, b: any) =>
                     new Date(b.date).getTime() - new Date(a.date).getTime()
                 );
                 setTrainings(sortedWorkouts.slice(0, 3));
@@ -51,7 +51,7 @@ export default function Home() {
                 setTrainings([]);
             }
         }
-        
+
         setLoading(false);
     };
 
@@ -97,18 +97,14 @@ export default function Home() {
                         try {
                             const blocksResponse = await api.get(`/block_exercises/${trainingId}`);
                             const blocks = blocksResponse.data;
-                            
                             for (const block of blocks) {
                                 const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
                                 const exercises = exercisesResponse.data;
-                                
                                 for (const exercise of exercises) {
                                     await api.delete(`/exercise/${exercise.id}`);
                                 }
-                                
                                 await api.delete(`/block_exercises/${block.id}`);
                             }
-                            
                             await api.delete(`/workout/${trainingId}`);
                             triggerRefresh();
                             Alert.alert('Успех', 'Тренировка удалена');
@@ -166,7 +162,7 @@ export default function Home() {
             ) : (
                 trainings.map((training) => (
                     <View key={training.id} style={style.trainingContainer}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={style.trainingContent}
                             onPress={() => {
                                 router.push({
@@ -184,7 +180,7 @@ export default function Home() {
                                 <Text style={style.textTrainingDate}>Дата: {formatDate(training.date)}</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={style.deleteButton}
                             onPress={() => handleDeleteTraining(training.id, training.name_workout)}
                         >

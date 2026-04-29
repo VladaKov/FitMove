@@ -9,36 +9,32 @@ router = APIRouter(tags=["workout"])
 def create_workout(workout: WorkoutCreate):
     conn = get_db_connection()
     cur = conn.cursor()
-    
-    # Разные запросы в зависимости от переданных полей
     if workout.id_client is not None and workout.id_users is not None:
         cur.execute("""
-            INSERT INTO workout (id_client, id_users, name_workout, date) 
+            INSERT INTO workout (id_client, id_users, name_workout, date)
             VALUES (%s, %s, %s, %s) RETURNING id
         """, (workout.id_client, workout.id_users, workout.name_workout, workout.date))
     elif workout.id_client is not None:
         cur.execute("""
-            INSERT INTO workout (id_client, name_workout, date) 
+            INSERT INTO workout (id_client, name_workout, date)
             VALUES (%s, %s, %s) RETURNING id
         """, (workout.id_client, workout.name_workout, workout.date))
     elif workout.id_users is not None:
         cur.execute("""
-            INSERT INTO workout (id_users, name_workout, date) 
+            INSERT INTO workout (id_users, name_workout, date)
             VALUES (%s, %s, %s) RETURNING id
         """, (workout.id_users, workout.name_workout, workout.date))
     else:
         cur.execute("""
-            INSERT INTO workout (name_workout, date) 
+            INSERT INTO workout (name_workout, date)
             VALUES (%s, %s) RETURNING id
         """, (workout.name_workout, workout.date))
-    
-    # Исправлено: получаем id как словарь
+
     result = cur.fetchone()
     workout_id = result['id'] if isinstance(result, dict) else result[0]
     conn.commit()
     return {"id": workout_id, "message": "Тренировка создана"}
 
-# Остальные методы без изменений...
 @router.get("/workout/client/{client_id}")
 def get_workout_client(client_id: int):
     conn = get_db_connection()
