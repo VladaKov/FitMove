@@ -16,7 +16,7 @@ export const deleteExercise = async (id: number) => {
     return response.data
 }
 
-export const getExercises = async (id: number): Promise<ExerciseResponse[]> => {
-    const response = await api.get(`/exercise/client/${id}`)
+export const getExercisesByBlock = async (id_block: number): Promise<ExerciseResponse[]> => {
+    const response = await api.get(`/exercise/block/${id_block}`)
     return response.data
 }

@@ -4,11 +4,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useState } from 'react';
 
-import { getClients, createClient } from '../../services/clientsService';
+import { getClients, createClient, deleteClient } from '../../services/clientsService';
 import { ClientResponse } from '../../services/types';
 
 import { getUserId } from '../../services/auth';
 import { useAppContext } from '../../context/AppContext';
+import api from '../../services/api';
 
 export default function Client() {
     const router = useRouter();
@@ -29,7 +30,31 @@ export default function Client() {
         setLoading(true);
         const userId = await getUserId();
         const data = await getClients(Number(userId));
-        setClients(data);
+        
+        // Для каждого клиента получаем последнюю дату тренировки
+        const clientsWithLastDate = await Promise.all(
+            data.map(async (client) => {
+                try {
+                    const response = await api.get(`/workout/client/${client.id}`);
+                    const workouts = response.data;
+                    if (workouts.length > 0) {
+                        const lastWorkout = workouts.sort((a: any, b: any) => 
+                            new Date(b.date).getTime() - new Date(a.date).getTime()
+                        )[0];
+                        return {
+                            ...client,
+                            lastDate: lastWorkout.date
+                        };
+                    }
+                    return { ...client, lastDate: null };
+                } catch (error) {
+                    console.error('Ошибка получения тренировок:', error);
+                    return { ...client, lastDate: null };
+                }
+            })
+        );
+        
+        setClients(clientsWithLastDate);
         setLoading(false);
     };
 
@@ -52,6 +77,57 @@ export default function Client() {
         triggerRefresh();
     };
 
+    const handleDeleteClient = (client: ClientResponse) => {
+        Alert.alert(
+            'Удалить клиента',
+            `Вы уверены, что хотите удалить клиента "${client.name}"?`,
+            [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Удалить',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            // Сначала удаляем все тренировки клиента со всеми блоками и упражнениями
+                            const workoutsResponse = await api.get(`/workout/client/${client.id}`);
+                            const workouts = workoutsResponse.data;
+                            
+                            for (const workout of workouts) {
+                                // Получаем блоки тренировки
+                                const blocksResponse = await api.get(`/block_exercises/${workout.id}`);
+                                const blocks = blocksResponse.data;
+                                
+                                for (const block of blocks) {
+                                    // Получаем упражнения блока
+                                    const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
+                                    const exercises = exercisesResponse.data;
+                                    
+                                    // Удаляем каждое упражнение
+                                    for (const exercise of exercises) {
+                                        await api.delete(`/exercise/${exercise.id}`);
+                                    }
+                                    
+                                    // Удаляем блок
+                                    await api.delete(`/block_exercises/${block.id}`);
+                                }
+                                
+                                // Удаляем тренировку
+                                await api.delete(`/workout/${workout.id}`);
+                            }
+                            
+                            // Удаляем клиента
+                            await deleteClient(client.id);
+                            triggerRefresh();
+                        } catch (error) {
+                            console.error('Ошибка удаления клиента:', error);
+                            Alert.alert('Ошибка', 'Не удалось удалить клиента');
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const handleClientPress = (client: ClientResponse) => {
         router.push({
             pathname: '/(page)/clientInfo',
@@ -61,6 +137,12 @@ export default function Client() {
                 contact: client.contact
             }
         });
+    };
+
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear().toString().slice(-2)}`;
     };
 
     if (loading) {
@@ -90,10 +172,18 @@ export default function Client() {
                     contentContainerStyle={style.flatListContent}
                     showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => handleClientPress(item)}>
+                        <TouchableOpacity onPress={() => handleClientPress(item)} activeOpacity={0.7}>
                             <View style={style.containerClient}>
-                                <Text style={style.textNameClient}>{item.name}</Text>
-                                <Text style={style.textDateClient}>был(а): 23.02.26</Text>
+                                <View style={style.clientHeader}>
+                                    <Text style={style.textNameClient}>{item.name}</Text>
+                                    <TouchableOpacity 
+                                        style={style.deleteClientButton}
+                                        onPress={() => handleDeleteClient(item)}
+                                    >
+                                        <MaterialCommunityIcons name="delete" size={24} color="#ff4444" />
+                                    </TouchableOpacity>
+                                </View>
+                                <Text style={style.textDateClient}>Был(а): {formatDate((item as any).lastDate)}</Text>
                             </View>
                         </TouchableOpacity>
                     )}
@@ -181,11 +271,19 @@ const style = StyleSheet.create({
         borderRadius: 20,
         padding: 15,
     },
+    clientHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
     textNameClient: {
         color: '#FFFFFF',
         fontSize: 25,
         fontWeight: '600',
-        marginBottom: 10,
+    },
+    deleteClientButton: {
+        padding: 5,
     },
     textDateClient: {
         color: '#646464',

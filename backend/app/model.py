@@ -55,7 +55,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS exercises (
             id BIGINT PRIMARY KEY DEFAULT nextval('global_id_seq'),
             id_category BIGINT REFERENCES category(id),
-            id_execute BIGINT REFERENCES blockExercises(id),
+            id_block BIGINT REFERENCES blockExercises(id),
             name_exercises VARCHAR(50) NOT NULL,
             repetitions INT NOT NULL,
             comment VARCHAR(255) NOT NULL
@@ -63,7 +63,8 @@ def init_db():
     """)
     # Заполнение таблицы категорий
     cur.execute("""
-        INSERT INTO category (name_category) VALUES
+        INSERT INTO category (name_category)
+        SELECT * FROM (VALUES
             ('Большая грудная'),
             ('Широчайшая'),
             ('Бицепс'),
@@ -72,7 +73,9 @@ def init_db():
             ('Бицепс бедра'),
             ('Прямая мышца живота'),
             ('Косые мышцы живота'),
-            ('Большая ягодичная');
+            ('Большая ягодичная')
+        ) AS v(name_category)
+        WHERE NOT EXISTS (SELECT 1 FROM category WHERE category.name_category = v.name_category);
     """)
     conn.commit()
     cur.close()

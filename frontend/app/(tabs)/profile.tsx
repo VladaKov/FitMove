@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState, useCallback } from 'react';
 import { getUserName, logoutUser, getUserId, updateUserName } from '../../services/auth';
 import { getClients } from '../../services/clientsService';
+import { getWorkoutUser } from '../../services/workoutService';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useAppContext } from '../../context/AppContext';
@@ -12,6 +13,7 @@ export default function Profile() {
     const { refreshTrigger, triggerRefresh } = useAppContext();
     const [userName, setUserName] = useState('');
     const [clientsCount, setClientsCount] = useState(0);
+    const [workoutsCount, setWorkoutsCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [newName, setNewName] = useState('');
@@ -26,6 +28,9 @@ export default function Profile() {
         if (userId) {
             const clients = await getClients(userId);
             setClientsCount(clients.length);
+            
+            const workouts = await getWorkoutUser(userId);
+            setWorkoutsCount(workouts.length);
         }
         setLoading(false);
     };
@@ -60,7 +65,7 @@ export default function Profile() {
             setUserName(newName);
             setModalVisible(false);
             triggerRefresh();
-            Alert.alert('Имя изменено');
+            Alert.alert('Успех', 'Имя изменено');
         } else {
             Alert.alert('Ошибка', 'Не удалось изменить имя');
         }
@@ -69,7 +74,7 @@ export default function Profile() {
     if (loading) {
         return (
             <View style={style.container}>
-                <ActivityIndicator size="large" color="#AACC12" />
+                <ActivityIndicator size="large" color="#000000" />
             </View>
         );
     }
@@ -86,7 +91,7 @@ export default function Profile() {
                     <Text style={style.statLabel}>Клиентов</Text>
                 </View>
                 <View style={style.statCard}>
-                    <Text style={style.statNumber}>0</Text>
+                    <Text style={style.statNumber}>{workoutsCount}</Text>
                     <Text style={style.statLabel}>Тренировок</Text>
                 </View>
             </View>
@@ -120,7 +125,13 @@ export default function Profile() {
 
                         <View style={style.containerModal}>
                             <Text style={style.textName}>Введите новое имя</Text>
-                            <TextInput style={style.input} placeholder="Имя" placeholderTextColor="#646464" value={newName} onChangeText={setNewName}/>
+                            <TextInput 
+                                style={style.input} 
+                                placeholder="Имя" 
+                                placeholderTextColor="#646464" 
+                                value={newName} 
+                                onChangeText={setNewName}
+                            />
 
                             <TouchableOpacity onPress={handleUpdateName} style={style.saveButton}>
                                 <Text style={style.saveText}>Сохранить</Text>

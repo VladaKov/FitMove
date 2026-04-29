@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useCallback } from 'react';
@@ -74,20 +74,58 @@ export default function ClientInfo() {
 
     const handleAddWorkout = () => {
         router.push({
-            pathname: '/add-workout',
-            params: { clientId: id.toString(), clientName: currentName }
+            pathname: '/(page)/clientCreateTrainind',
+            params: { clientId: id.toString()}
         });
     };
 
     const handleWorkoutPress = (workout: any) => {
         router.push({
-            pathname: '/workout-info',
+            pathname: '/(page)/clientTraining',
             params: {
+                workoutId: workout.id.toString(),
                 id: workout.id,
                 name: workout.name_workout,
                 date: workout.date,
             }
         });
+    };
+
+    const handleDeleteWorkout = async (workoutId: number, workoutName: string) => {
+        Alert.alert(
+            'Удалить тренировку',
+            `Вы уверены, что хотите удалить тренировку "${workoutName}"?`,
+            [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Удалить',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const blocksResponse = await api.get(`/block_exercises/${workoutId}`);
+                            const blocks = blocksResponse.data;
+                            
+                            for (const block of blocks) {
+                                const exercisesResponse = await api.get(`/exercise/block/${block.id}`);
+                                const exercises = exercisesResponse.data;
+                                
+                                for (const exercise of exercises) {
+                                    await api.delete(`/exercise/${exercise.id}`);
+                                }
+                                
+                                await api.delete(`/block_exercises/${block.id}`);
+                            }
+                            
+                            await api.delete(`/workout/${workoutId}`);
+                            triggerRefresh();
+                        } catch (error) {
+                            console.error('Ошибка удаления тренировки:', error);
+                            Alert.alert('Ошибка', 'Не удалось удалить тренировку');
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const formatDate = (dateString: string) => {
@@ -184,22 +222,39 @@ export default function ClientInfo() {
                 </View>
             </TouchableOpacity>
 
-            {workouts.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Нет тренировок</Text>
-                </View>
-            ) : (
-                workouts.map((workout) => (
-                    <TouchableOpacity
-                        key={workout.id}
-                        style={styles.containerTraining}
-                        onPress={() => handleWorkoutPress(workout)}
-                    >
-                        <Text style={styles.textTrainingName}>{workout.name_workout}</Text>
-                        <Text style={styles.textTrainingDate}>Дата: {formatDate(workout.date)}</Text>
-                    </TouchableOpacity>
-                ))
-            )}
+            <ScrollView 
+                style={styles.scrollView} 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {workouts.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>Нет тренировок</Text>
+                    </View>
+                ) : (
+                    workouts.map((workout) => (
+                        <TouchableOpacity
+                            key={workout.id}
+                            style={styles.containerTraining}
+                            onPress={() => handleWorkoutPress(workout)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={styles.trainingContent}>
+                                <View style={styles.trainingTextContainer}>
+                                    <Text style={styles.textTrainingName}>{workout.name_workout}</Text>
+                                    <Text style={styles.textTrainingDate}>Дата: {formatDate(workout.date)}</Text>
+                                </View>
+                                <TouchableOpacity 
+                                    style={styles.deleteButton} 
+                                    onPress={() => handleDeleteWorkout(workout.id, workout.name_workout)}
+                                >
+                                    <MaterialCommunityIcons name="delete" size={24} color="#ff4444" />
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableOpacity>
+                    ))
+                )}
+            </ScrollView>
         </View>
     );
 }
@@ -245,6 +300,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 20,
     },
     containerInfoClient: {
         backgroundColor: '#AACC12',
@@ -264,7 +320,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginLeft: 5,
     },
-
     textTren: {
         color: '#ffffff',
         fontSize: 28,
@@ -279,7 +334,7 @@ const styles = StyleSheet.create({
         height: 55,
         padding: 10,
         marginTop: 30,
-        marginBottom: 10,
+        marginBottom: 20,
         borderRadius: 30,
         justifyContent: 'center',
         alignSelf: 'center',
@@ -299,28 +354,46 @@ const styles = StyleSheet.create({
         color: '#646464',
         fontSize: 25,
     },
-
+    scrollView: {
+        flex: 1,
+        width: '100%',
+    },
+    scrollContent: {
+        paddingBottom: 40,
+        alignItems: 'center',
+    },
     containerTraining: {
-        marginTop: 20,
+        marginTop: 15,
         backgroundColor: '#181818',
         width: '90%',
-        height: 80,
+        minHeight: 80,
         borderRadius: 20,
-        padding: 10,
+        padding: 12,
         alignSelf: 'center',
+    },
+    trainingContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    trainingTextContainer: {
+        flex: 1,
     },
     textTrainingName: {
         color: '#ffffff',
         fontSize: 20,
         fontWeight: '700',
-        marginTop: 5,
+        marginBottom: 5,
         marginLeft: 5,
     },
     textTrainingDate: {
         color: '#646464',
         fontSize: 14,
-        marginTop: 3,
         marginLeft: 5,
+    },
+    deleteButton: {
+        padding: 8,
+        marginRight: 5,
     },
     emptyContainer: {
         marginTop: 50,
@@ -331,7 +404,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
     },
-
     modalOverlay: {
         flex: 1,
         justifyContent: 'center',
